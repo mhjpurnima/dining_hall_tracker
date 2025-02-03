@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UNK Dining Hall Crowd Tracker</title>
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>UNK Dining Hall Crowd Tracker</h1>
-    <p>Current Date & Time: <span id="current-time"></span></p>
-    <p>Status: <span id="status">Loading...</span></p>
-    <p>Busiest Hour: <span id="busiest-hour">Loading...</span></p>
-    <p>Quieter Hours: <span id="quiet-hours">Loading...</span></p>
-</body>
+    <button id="check-status">How Busy is Dining Hall?</button>
+    <button id="check-peak-hour">Peak Hour For Today</button>
+    <p>Status: <span id="status">---</span></p>
+    <p>Busiest Hour: <span id="busiest-hour">---</span></p>
+    <p>Quieter Hours: <span id="quiet-hours">---</span></p>
+    <p>Today's Peak Hour: <span id="peak-hour">---</span></p>
+  </body>
 </html>

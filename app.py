@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify
 import pandas as pd
 
 app = Flask(__name__)
-
+print("TEST",app.url_map)
 # Load data from CSV file
 def load_data():
     try:
@@ -40,8 +40,12 @@ def get_status():
 
         # Match time_slot against second column (index 1)
         time_column = df.iloc[:, 1].astype(str).str.strip()  # Ensure no spaces or mismatches
+        print("time_column: ", time_column)
         time_row = df[time_column == time_slot]  # Match time correctly
         print("time_row: ", time_row)
+
+        date_columns = df.iloc[0, :]  # First row contains dates
+        print("STATUS date_columns: ", date_columns)
 
         if not time_row.empty:
             # Find the column for the current day
@@ -84,20 +88,52 @@ def get_peak_hour():
 
         # Identify date and day columns
         day_columns = df.iloc[1, :]  # Get day names from second row
-        day_column_index = day_columns[day_columns == current_day].index[0]  # Find matching day column
+        print("day_columns: ", day_columns)
+        # Check if current day exists in data
+        matching_days = day_columns[day_columns == current_day]
+        if matching_days.empty:
+            print(f"Day {current_day} not found in data")
+            return jsonify({"peak_hour": f"No data available for {current_day}"})
+            
+        day_column_index = matching_days.index[0]  # Find matching day column
 
-        # Filter rows for the current date
-        print("df: ", df.iloc[:, 3])
-        date_mask = df.iloc[:, 0].astype(str) == current_date
-        filtered_df = df[date_mask]
+        # Filter rows for the current date - make sure you're checking the right column
+        date_columns = df.iloc[0, :]  # First row contains dates
+        print("date_columns: ", date_columns)
+        date_mask = date_columns.astype(str) == current_date
         
+        # If current date not found, find most recent date
+        if not any(date_mask):
+            print(f"Date {current_date} not found in data")
+            available_dates = date_columns[2:].dropna()  # Skip first two columns
+            if not available_dates.empty:
+                # Use the most recent date
+                most_recent = available_dates.iloc[-1]
+                current_date = most_recent
+                date_mask = date_columns.astype(str) == current_date
+                print(f"Using most recent date: {current_date}")
+            else:
+                return jsonify({"peak_hour": "No date data available"})
+        
+        # Find all columns matching the date (should be only one)
+        date_col_indices = date_mask[date_mask].index.tolist()
+        if not date_col_indices:
+            return jsonify({"peak_hour": "No data available for this date"})
+            
+        date_col_index = date_col_indices[0]
+        
+        # Create a dataframe with time and count
+        # Only include rows that have time values (skip meal headers)
+        times = df.iloc[:, 1].astype(str)
+        valid_time_mask = times.str.contains(':')
+        time_values = times[valid_time_mask]
+        count_values = df.loc[valid_time_mask, df.columns[date_col_index]]
 
-        if filtered_df.empty:
-            return jsonify({"peak_hour": "No data available"})
-
-        # Get time slots and counts
-        time_counts = filtered_df.iloc[:, [1, day_column_index]].copy()
-        time_counts.columns = ["time", "count"]
+        
+        time_counts = pd.DataFrame({
+            "time": time_values,
+            "count": count_values
+        })
 
         # Convert count to numeric
         time_counts["count"] = pd.to_numeric(time_counts["count"], errors="coerce").fillna(0).astype(int)
@@ -109,36 +145,32 @@ def get_peak_hour():
 
         # Get peak time(s)
         peak_rows = time_counts[time_counts["count"] == max_count]
+        if peak_rows.empty:
+            return jsonify({"peak_hour": "No peak data found"})
+            
         peak_time = peak_rows.iloc[0]["time"]  # Take the first peak time
 
-        # Find adjacent time (previous or next row)
-        peak_index = peak_rows.index[0]
-        adjacent_time = None
-
-        if peak_index > time_counts.index[0]:  # Check previous row
-            adjacent_time = time_counts.loc[peak_index - 1, "time"]
-        elif peak_index < time_counts.index[-1]:  # Check next row
-            adjacent_time = time_counts.loc[peak_index + 1, "time"]
-
-        # Format peak and adjacent times
-        formatted_peak_time = pd.to_datetime(peak_time, format="%H:%M").strftime("%-I %p")
-        formatted_adjacent_time = (
-            pd.to_datetime(adjacent_time, format="%H:%M").strftime("%-I %p") if adjacent_time else None
-        )
-
-        # Combine result
-        if formatted_adjacent_time:
-            peak_hour = f"{formatted_peak_time} & {formatted_adjacent_time}"
-        else:
-            peak_hour = formatted_peak_time
+        # Format peak time
+        try:
+            formatted_peak_time = pd.to_datetime(peak_time, format="%H:%M").strftime("%-I:%M %p")
+        except:
+            formatted_peak_time = peak_time  # Use as-is if formatting fails
+        
+        peak_hour = f"{formatted_peak_time}"
 
         print("Peak Hour:", peak_hour)
-        return jsonify({"peak_hour": peak_hour})
+        return jsonify({
+            "peak_hour": peak_hour,
+            "date": current_date,
+            "day": current_day
+        })
 
     except Exception as e:
         print("Error finding peak hour:", e)
-        return jsonify({"peak_hour": "Unknown"})
-
+        import traceback
+        traceback.print_exc()
+        return jsonify({"peak_hour": "Unknown", "error": str(e)})
+        
 # @app.route("/get_quiet_hours")
 # def get_quiet_hours():
 #     df = load_data()

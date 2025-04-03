@@ -1,5 +1,11 @@
 from flask import Flask, render_template, jsonify
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from datetime import datetime
 
 app = Flask(__name__)
 print("TEST",app.url_map)
@@ -13,67 +19,104 @@ def load_data():
         print("Error loading CSV file:", e)
         return None
 
+# Prepare data for training
+def prepare_data(df):
+    data = []
+    for col in range(2, df.shape[1]):
+        day = df.iloc[1, col]
+        for row in range(2, df.shape[0]):
+            time = df.iloc[row, 1]
+            count = df.iloc[row, col]
+            
+            # Handle empty strings and NaN values
+            if pd.isna(count) or count.strip() in ['', 'nan', 'NaN']:
+                print(f"Skipping invalid entry at column {col}, row {row}")
+                continue
+                
+            try:
+                # Convert to integer safely
+                count_int = int(float(count))
+                data.append({
+                    "day": day,
+                    "time": time,
+                    "count": count_int
+                })
+            except (ValueError, TypeError) as e:
+                print(f"Skipping invalid count '{count}' at {time} on {day}: {str(e)}")
+    
+    return pd.DataFrame(data)
+
+# Train a model to predict counts based on the day of the week
+def train_model(df):
+    # Prepare features and target
+    df['day'] = df['day'].astype('category')
+    
+    # Features and target
+    X = df[['day']]
+    y = df['count']
+    
+    # Encode categorical features
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('day', OneHotEncoder(), ['day'])
+        ],
+        remainder='passthrough'
+    )
+    
+    # Create a pipeline
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', LinearRegression())
+    ])
+    
+    # Train the model
+    model.fit(X, y)
+    return model
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
-@app.route("/get_status")
-def get_status():
+@app.route("/get_status/<day>")
+def get_status(day):
+    print("=== get_status endpoint called ===")
     df = load_data()
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
-    # Get current date, hour, and time slot
-    now = pd.Timestamp.now()
-    print("now: ", now)
-    current_hour = now.hour
-    print("current_hour: ", current_hour)
-    current_day = now.strftime('%a').upper()
-    print("current_day: ", current_day)
+    # Prepare data for training
+    data_df = prepare_data(df)
+    if data_df.empty:
+        return jsonify({"error": "No valid data found"}), 500
 
     try:
-        # Ensure time is formatted correctly for comparison
-        time_slot = f"{current_hour}:{now.minute // 15 * 15:02d}"
-        print("time_slot: ", time_slot)
+        # Train the model
+        model = train_model(data_df)
 
-        # Match time_slot against second column (index 1)
-        time_column = df.iloc[:, 1].astype(str).str.strip()  # Ensure no spaces or mismatches
-        print("time_column: ", time_column)
-        time_row = df[time_column == time_slot]  # Match time correctly
-        print("time_row: ", time_row)
+        # Prepare input for prediction based on the provided day
+        input_data = pd.DataFrame({
+            'day': [day]
+        })
 
-        date_columns = df.iloc[0, :]  # First row contains dates
-        print("STATUS date_columns: ", date_columns)
+        # Predict the count
+        predicted_count = model.predict(input_data)[0]
+        print(f"Predicted count for {day}: {predicted_count}")
 
-        if not time_row.empty:
-            # Find the column for the current day
-            day_columns = df.iloc[1, :]  # Get day names from second row
-            day_column_index = day_columns[day_columns == current_day].index[0]  # Find matching day column
-            
-            # Get the count for current time and day
-            count = time_row.iloc[0, day_column_index]
-            print("Count at this time:", count)
-
-            # Determine status based on count
-            count = int(count) if count.isnumeric() else 0  # Convert to integer safely
-            if count > 50:
-                current_status = "Busy"
-            elif count > 20:
-                current_status = "Moderate"
-            else:
-                current_status = "Slow"
+        # Determine status based on predicted count
+        if predicted_count < 20:
+            current_status = "SLOW"
+        elif 20 <= predicted_count < 40:
+            current_status = "MODERATE"
         else:
-            current_status = "Closed"
+            current_status = "BUSY"
+
+        return jsonify({"status": current_status, "predicted_count": predicted_count})
 
     except Exception as e:
-        print("Error determining status:", e)
-        current_status = "Unknown"
+        print("Error predicting status:", e)
+        return jsonify({"error": "Failed to predict status"}), 500
 
-    return jsonify({"status": current_status})
-
-@app.route("/get_peak_hour")
+@app.route("/get_peak_hour")    
 def get_peak_hour():
     df = load_data()
     if df is None:
@@ -89,6 +132,7 @@ def get_peak_hour():
         # Identify date and day columns
         day_columns = df.iloc[1, :]  # Get day names from second row
         print("day_columns: ", day_columns)
+        
         # Check if current day exists in data
         matching_days = day_columns[day_columns == current_day]
         if matching_days.empty:
@@ -134,6 +178,7 @@ def get_peak_hour():
             "time": time_values,
             "count": count_values
         })
+        print("time_counts: ", time_counts)
 
         # Convert count to numeric
         time_counts["count"] = pd.to_numeric(time_counts["count"], errors="coerce").fillna(0).astype(int)

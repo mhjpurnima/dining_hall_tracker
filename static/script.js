@@ -5,16 +5,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const peakButton = document.getElementById("check-peak-hour");
   const peakElement = document.getElementById("peak-hour");
 
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const currentDay = days[new Date().getDay()]; // Gets current day abbreviation
+
   statusButton.addEventListener("click", function () {
     statusElement.innerText = "Checking...";
-    fetch("/get_status")
+    fetch(`/get_status/${currentDay}`)
       .then((response) => response.json())
       .then((data) => {
         statusElement.innerText = data.status;
       })
       .catch((error) => {
         console.error("Error fetching status:", error);
-        statusElement.innerText = "Error checking status";
+        statusElement.innerText = "Error loading status";
       });
   });
 

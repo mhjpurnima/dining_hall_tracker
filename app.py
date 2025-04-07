@@ -83,33 +83,53 @@ def get_status(day):
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
+    print(f"\n=== DEBUGGING GET_STATUS FOR {day.upper()} ===")
+    
     try:
         day = day.upper()
-        # Find the column for the requested day
-        day_columns = df.iloc[1, :]
-        day_column_index = day_columns[day_columns == day].index[0]
+        print(f"1. Looking for day column: {day}")
         
-        # Get all counts for this day
+        day_columns = df.iloc[1, :]
+        print(f"2. Available days in data: {list(day_columns[2:])}")  # Skip first two empty columns
+        
+        day_column_index = day_columns[day_columns == day].index[0]
+        print(f"3. Found {day} at column index: {day_column_index}")
+        
         counts = []
+        print("4. Scanning rows for valid counts:")
         for row in range(2, df.shape[0]):
             count = df.iloc[row, day_column_index]
+            time_slot = df.iloc[row, 1]
+            
             if pd.isna(count) or not str(count).isnumeric():
+                print(f"   - Row {row} ({time_slot}): Invalid count '{count}' → Skipped")
                 continue
-            counts.append(int(count))
+                
+            count_int = int(count)
+            counts.append(count_int)
+            print(f"   - Row {row} ({time_slot}): Valid count {count_int}")
+        
+        print(f"\n5. Analysis for {day}:")
+        print(f"   - Total valid readings: {len(counts)}")
+        print(f"   - All counts: {counts}")
         
         if not counts:
+            print("   - ERROR: No valid counts found")
             return jsonify({"error": "No data available for this day"}), 404
 
         avg_count = sum(counts) / len(counts)
+        print(f"   - Calculated average: {avg_count:.2f}")
         
         # Determine status
         if avg_count < 20:
-            status = "Busy"
+            status = "Slow"
         elif 20 <= avg_count < 40:
             status = "Moderate"
         else:
-            status = "Slow"
-
+            status = "Busy"
+            
+        print(f"   - Final status: {status}")
+        
         return jsonify({
             "day": day,
             "status": status,
@@ -118,49 +138,64 @@ def get_status(day):
         })
 
     except Exception as e:
-        print(f"Error processing day {day}:", e)
+        print(f"\n!!! ERROR PROCESSING {day}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
-@app.route("/get_peak_hour/<day>")
 def get_peak_hour(day):
     df = load_data()
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
+    print(f"\n=== DEBUGGING GET_PEAK_HOUR FOR {day.upper()} ===")
+    
     try:
         day = day.upper()
-        # Find the column for the requested day
-        day_columns = df.iloc[1, :]
-        day_column_index = day_columns[day_columns == day].index[0]
+        print(f"1. Looking for day column: {day}")
         
-        # Get all time slots and counts for this day
+        day_columns = df.iloc[1, :]
+        print(f"2. Available days in data: {list(day_columns[2:])}")
+        
+        day_column_index = day_columns[day_columns == day].index[0]
+        print(f"3. Found {day} at column index: {day_column_index}")
+        
         time_counts = []
+        print("4. Scanning time slots:")
         for row in range(2, df.shape[0]):
             time_str = df.iloc[row, 1]
             count = df.iloc[row, day_column_index]
             
             if pd.isna(count) or not str(count).isnumeric():
+                print(f"   - {time_str}: Invalid count '{count}' → Skipped")
                 continue
                 
             try:
-                # Convert to datetime and format as AM/PM
+                count_int = int(count)
                 time_obj = datetime.strptime(time_str, "%H:%M").time()
                 formatted_time = time_obj.strftime("%I:%M %p").lstrip('0')
                 time_counts.append({
                     "time": formatted_time,
-                    "count": int(count)
+                    "count": count_int
                 })
+                print(f"   - {time_str} → {formatted_time}: Valid count {count_int}")
             except Exception as e:
-                print(f"Error processing time {time_str}: {str(e)}")
+                print(f"   - {time_str}: Error processing → {str(e)}")
                 continue
 
+        print(f"\n5. Peak hour analysis for {day}:")
+        print(f"   - All valid time counts: {time_counts}")
+        
         if not time_counts:
+            print("   - ERROR: No valid time slots found")
             return jsonify({"error": "No data available for this day"}), 404
 
-        # Find peak hour(s)
         max_count = max(tc['count'] for tc in time_counts)
+        print(f"   - Maximum count found: {max_count}")
+        
         peak_times = [tc['time'] for tc in time_counts if tc['count'] == max_count]
-        print(peak_times)
+        print(f"   - Peak time(s) with max count: {peak_times}")
+        
         return jsonify({
             "day": day,
             "peak_hours": peak_times,
@@ -169,7 +204,9 @@ def get_peak_hour(day):
         })
 
     except Exception as e:
-        print(f"Error processing day {day}:", e)
+        print(f"\n!!! ERROR PROCESSING {day}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
 # @app.route("/get_quiet_hours")

@@ -122,11 +122,11 @@ def get_status(day):
         
         # Determine status
         if avg_count < 20:
-            status = "Slow"
+            status = "Busy"
         elif 20 <= avg_count < 40:
             status = "Moderate"
         else:
-            status = "Busy"
+            status = "Slow"
             
         print(f"   - Final status: {status}")
         

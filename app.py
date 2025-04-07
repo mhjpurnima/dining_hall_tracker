@@ -79,143 +79,99 @@ def home():
 
 @app.route("/get_status/<day>")
 def get_status(day):
-    print("=== get_status endpoint called ===")
     df = load_data()
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
-    # Prepare data for training
-    data_df = prepare_data(df)
-    if data_df.empty:
-        return jsonify({"error": "No valid data found"}), 500
-
     try:
-        # Train the model
-        model = train_model(data_df)
+        day = day.upper()
+        # Find the column for the requested day
+        day_columns = df.iloc[1, :]
+        day_column_index = day_columns[day_columns == day].index[0]
+        
+        # Get all counts for this day
+        counts = []
+        for row in range(2, df.shape[0]):
+            count = df.iloc[row, day_column_index]
+            if pd.isna(count) or not str(count).isnumeric():
+                continue
+            counts.append(int(count))
+        
+        if not counts:
+            return jsonify({"error": "No data available for this day"}), 404
 
-        # Prepare input for prediction based on the provided day
-        input_data = pd.DataFrame({
-            'day': [day]
-        })
-
-        # Predict the count
-        predicted_count = model.predict(input_data)[0]
-        print(f"Predicted count for {day}: {predicted_count}")
-
-        # Determine status based on predicted count
-        if predicted_count < 20:
-            current_status = "SLOW"
-        elif 20 <= predicted_count < 40:
-            current_status = "MODERATE"
+        avg_count = sum(counts) / len(counts)
+        
+        # Determine status
+        if avg_count < 20:
+            status = "Busy"
+        elif 20 <= avg_count < 40:
+            status = "Moderate"
         else:
-            current_status = "BUSY"
+            status = "Slow"
 
-        return jsonify({"status": current_status, "predicted_count": predicted_count})
+        return jsonify({
+            "day": day,
+            "status": status,
+            "average_count": avg_count,
+            "total_readings": len(counts)
+        })
 
     except Exception as e:
-        print("Error predicting status:", e)
-        return jsonify({"error": "Failed to predict status"}), 500
+        print(f"Error processing day {day}:", e)
+        return jsonify({"error": "Invalid day or data format"}), 400
 
-@app.route("/get_peak_hour")    
-def get_peak_hour():
+@app.route("/get_peak_hour/<day>")
+def get_peak_hour(day):
     df = load_data()
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
     try:
-        now = pd.Timestamp.now()
-        current_day = now.strftime('%a').upper()
-        current_date = f"{now.month}.{now.day}"  # Format date as 'M.D' (e.g., '2.2' for Feb 2)
+        day = day.upper()
+        # Find the column for the requested day
+        day_columns = df.iloc[1, :]
+        day_column_index = day_columns[day_columns == day].index[0]
         
-        print(f"Current Date: {current_date}, Current Day: {current_day}")
-
-        # Identify date and day columns
-        day_columns = df.iloc[1, :]  # Get day names from second row
-        print("day_columns: ", day_columns)
-        
-        # Check if current day exists in data
-        matching_days = day_columns[day_columns == current_day]
-        if matching_days.empty:
-            print(f"Day {current_day} not found in data")
-            return jsonify({"peak_hour": f"No data available for {current_day}"})
+        # Get all time slots and counts for this day
+        time_counts = []
+        for row in range(2, df.shape[0]):
+            time_str = df.iloc[row, 1]
+            count = df.iloc[row, day_column_index]
             
-        day_column_index = matching_days.index[0]  # Find matching day column
+            if pd.isna(count) or not str(count).isnumeric():
+                continue
+                
+            try:
+                # Convert to datetime and format as AM/PM
+                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                formatted_time = time_obj.strftime("%I:%M %p").lstrip('0')
+                time_counts.append({
+                    "time": formatted_time,
+                    "count": int(count)
+                })
+            except Exception as e:
+                print(f"Error processing time {time_str}: {str(e)}")
+                continue
 
-        # Filter rows for the current date - make sure you're checking the right column
-        date_columns = df.iloc[0, :]  # First row contains dates
-        print("date_columns: ", date_columns)
-        date_mask = date_columns.astype(str) == current_date
-        
-        # If current date not found, find most recent date
-        if not any(date_mask):
-            print(f"Date {current_date} not found in data")
-            available_dates = date_columns[2:].dropna()  # Skip first two columns
-            if not available_dates.empty:
-                # Use the most recent date
-                most_recent = available_dates.iloc[-1]
-                current_date = most_recent
-                date_mask = date_columns.astype(str) == current_date
-                print(f"Using most recent date: {current_date}")
-            else:
-                return jsonify({"peak_hour": "No date data available"})
-        
-        # Find all columns matching the date (should be only one)
-        date_col_indices = date_mask[date_mask].index.tolist()
-        if not date_col_indices:
-            return jsonify({"peak_hour": "No data available for this date"})
-            
-        date_col_index = date_col_indices[0]
-        
-        # Create a dataframe with time and count
-        # Only include rows that have time values (skip meal headers)
-        times = df.iloc[:, 1].astype(str)
-        valid_time_mask = times.str.contains(':')
-        time_values = times[valid_time_mask]
-        count_values = df.loc[valid_time_mask, df.columns[date_col_index]]
+        if not time_counts:
+            return jsonify({"error": "No data available for this day"}), 404
 
-        
-        time_counts = pd.DataFrame({
-            "time": time_values,
-            "count": count_values
-        })
-        print("time_counts: ", time_counts)
-
-        # Convert count to numeric
-        time_counts["count"] = pd.to_numeric(time_counts["count"], errors="coerce").fillna(0).astype(int)
-
-        # Find the max count
-        max_count = time_counts["count"].max()
-        if max_count <= 0:
-            return jsonify({"peak_hour": "No significant data"})
-
-        # Get peak time(s)
-        peak_rows = time_counts[time_counts["count"] == max_count]
-        if peak_rows.empty:
-            return jsonify({"peak_hour": "No peak data found"})
-            
-        peak_time = peak_rows.iloc[0]["time"]  # Take the first peak time
-
-        # Format peak time
-        try:
-            formatted_peak_time = pd.to_datetime(peak_time, format="%H:%M").strftime("%-I:%M %p")
-        except:
-            formatted_peak_time = peak_time  # Use as-is if formatting fails
-        
-        peak_hour = f"{formatted_peak_time}"
-
-        print("Peak Hour:", peak_hour)
+        # Find peak hour(s)
+        max_count = max(tc['count'] for tc in time_counts)
+        peak_times = [tc['time'] for tc in time_counts if tc['count'] == max_count]
+        print(peak_times)
         return jsonify({
-            "peak_hour": peak_hour,
-            "date": current_date,
-            "day": current_day
+            "day": day,
+            "peak_hours": peak_times,
+            "peak_count": max_count,
+            "total_readings": len(time_counts)
         })
 
     except Exception as e:
-        print("Error finding peak hour:", e)
-        import traceback
-        traceback.print_exc()
-        return jsonify({"peak_hour": "Unknown", "error": str(e)})
-        
+        print(f"Error processing day {day}:", e)
+        return jsonify({"error": "Invalid day or data format"}), 400
+
 # @app.route("/get_quiet_hours")
 # def get_quiet_hours():
 #     df = load_data()

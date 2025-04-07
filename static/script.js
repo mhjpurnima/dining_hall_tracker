@@ -23,10 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   peakButton.addEventListener("click", function () {
     peakElement.innerText = "Checking...";
-    fetch("/get_peak_hour")
+    fetch(`/get_peak_hour/${currentDay}`)
       .then((response) => response.json())
       .then((data) => {
-        peakElement.innerText = data.peak_hour || "No data available";
+        peakElement.innerText = data.peak_hours || "No data available";
       })
       .catch((error) => {
         console.error("Error fetching peak hour:", error);

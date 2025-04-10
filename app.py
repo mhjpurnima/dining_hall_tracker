@@ -162,6 +162,7 @@ def get_status(day):
         traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
+@app.route("/get_peak_hour/<day>")
 def get_peak_hour(day):
     df = load_data()
     if df is None:

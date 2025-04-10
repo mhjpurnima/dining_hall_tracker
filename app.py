@@ -55,6 +55,25 @@ def train_model(df):
     X = df[['day']]
     y = df['count']
     
+    # Debugging: Print the DataFrame before training
+    print("\n=== Debugging Training Data ===")
+    print("DataFrame used for training:")
+    print(df)
+    
+    # Check for missing values
+    print("Missing values in DataFrame:")
+    print(df.isnull().sum())
+    
+    # Count valid entries
+    valid_entries = df.dropna().shape[0]
+    print(f"Number of valid entries for training: {valid_entries}")
+    
+    # Log features and target values
+    print("Features (X):")
+    print(X)
+    print("Target (y):")
+    print(y)
+    
     # Encode categorical features
     preprocessor = ColumnTransformer(
         transformers=[
@@ -216,4 +235,12 @@ def get_peak_hour(day):
 #         return jsonify({"error": "Failed to load data"}), 500
 
 if __name__ == "__main__":
+    df = load_data()
+    if df is not None:
+        cleaned_df = prepare_data(df)
+        trained_model = train_model(cleaned_df)
+    else:
+        print("Failed to load data for training.")
+
     app.run(debug=True)
+

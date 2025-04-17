@@ -229,6 +229,10 @@ def get_peak_hour(day):
         traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
+@app.route("/tracker")
+def tracker():
+    return render_template("tracker.html")
+
 # @app.route("/get_quiet_hours")
 # def get_quiet_hours():
 #     df = load_data()

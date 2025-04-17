@@ -8,7 +8,6 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <!-- <style>
       body {
         font-family: Arial, sans-serif;
@@ -72,12 +71,24 @@
     </style> -->
   </head>
   <body>
+    <nav>
+      <ul class="nav-menu">
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/tracker">Tracker</a>
+        </li>
+      </ul>
+    </nav>
+
     <div>
       <div class="page-banner">
         <div class="hero-banner banner">
           <div class="container">
             <div class="title-container">
               <div class="content">
+
                 <h4 class="title">our infrastructures make</h4>
                 <h4 class="sub-title">your success seem easy</h4>
                 <div class="content-holder">
@@ -408,49 +419,5 @@
         </div>
       </div>
     </footer>
-    <div class="container">
-      <h1>UNK Dining Hall Crowd Tracker</h1>
-      <p class="datetime" id="current-date-time"></p>
-
-      <button id="check-status">How Busy is Dining Hall?</button>
-      <p>Status: <span id="status">---</span></p>
-      <button id="check-peak-hour">Peak Hour For Today</button>
-      <p>Peak Hour: <span id="peak-hour">---</span></p>
-      <!-- <p>Busiest Hour: <span id="busiest-hour">---</span></p> -->
-      <!-- <p>Quieter Hours: <span id="quiet-hours">---</span></p> -->
-
-      <div class="box">
-        <h3>Opening Hours</h3>
-        <p><strong>Monday - Friday</strong></p>
-        <p>Breakfast: 07:00 AM - 10:30 AM</p>
-        <p>Lunch: 11:00 AM - 02:00 PM</p>
-        <p>Dinner: 04:30 PM - 08:00 PM</p>
-        <p><strong>Saturday - Sunday</strong></p>
-        <p>Brunch: 09:30 AM - 02:00 PM</p>
-        <p>Dinner: 05:00 PM - 07:00 PM</p>
-      </div>
-    </div>
-
-    <script>
-      function updateDateTime() {
-        const now = new Date();
-        const options = {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
-        };
-        document.getElementById("current-date-time").textContent =
-          now.toLocaleString("en-US", options);
-      }
-
-      // Update date and time every second
-      setInterval(updateDateTime, 1000);
-      updateDateTime(); // Initial call to set the date/time immediately
-    </script>
-  </body>
+    
 </html>

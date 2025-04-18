@@ -55,6 +55,25 @@ def train_model(df):
     X = df[['day']]
     y = df['count']
     
+    # Debugging: Print the DataFrame before training
+    print("\n=== Debugging Training Data ===")
+    print("DataFrame used for training:")
+    print(df)
+    
+    # Check for missing values
+    print("Missing values in DataFrame:")
+    print(df.isnull().sum())
+    
+    # Count valid entries
+    valid_entries = df.dropna().shape[0]
+    print(f"Number of valid entries for training: {valid_entries}")
+    
+    # Log features and target values
+    print("Features (X):")
+    print(X)
+    print("Target (y):")
+    print(y)
+    
     # Encode categorical features
     preprocessor = ColumnTransformer(
         transformers=[
@@ -122,11 +141,11 @@ def get_status(day):
         
         # Determine status
         if avg_count < 20:
-            status = "Slow"
+            status = "Busy"
         elif 20 <= avg_count < 40:
             status = "Moderate"
         else:
-            status = "Busy"
+            status = "Slow"
             
         print(f"   - Final status: {status}")
         
@@ -143,6 +162,7 @@ def get_status(day):
         traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
+@app.route("/get_peak_hour/<day>")
 def get_peak_hour(day):
     df = load_data()
     if df is None:
@@ -209,6 +229,10 @@ def get_peak_hour(day):
         traceback.print_exc()
         return jsonify({"error": "Invalid day or data format"}), 400
 
+@app.route("/tracker")
+def tracker():
+    return render_template("tracker.html")
+
 # @app.route("/get_quiet_hours")
 # def get_quiet_hours():
 #     df = load_data()
@@ -216,4 +240,12 @@ def get_peak_hour(day):
 #         return jsonify({"error": "Failed to load data"}), 500
 
 if __name__ == "__main__":
+    df = load_data()
+    if df is not None:
+        cleaned_df = prepare_data(df)
+        trained_model = train_model(cleaned_df)
+    else:
+        print("Failed to load data for training.")
+
     app.run(debug=True)
+

@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UNK Dining Hall Crowd Tracker</title>
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-    <style>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <!-- <style>
       body {
         font-family: Arial, sans-serif;
         display: flex;
@@ -65,51 +68,356 @@
       .box p {
         margin: 5px 0;
       }
-    </style>
+    </style> -->
   </head>
   <body>
-    <div class="container">
-      <h1>UNK Dining Hall Crowd Tracker</h1>
-      <p class="datetime" id="current-date-time"></p>
+    <nav>
+      <ul class="nav-menu">
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/tracker">Tracker</a>
+        </li>
+      </ul>
+    </nav>
 
-      <button id="check-status">How Busy is Dining Hall?</button>
-      <p>Status: <span id="status">---</span></p>
-      <button id="check-peak-hour">Peak Hour For Today</button>
-      <p>Peak Hour: <span id="peak-hour">---</span></p>
-      <!-- <p>Busiest Hour: <span id="busiest-hour">---</span></p> -->
-      <!-- <p>Quieter Hours: <span id="quiet-hours">---</span></p> -->
+    <div>
+      <div class="page-banner">
+        <div class="hero-banner banner">
+          <div class="container">
+            <div class="title-container">
+              <div class="content">
 
-      <div class="box">
-        <h3>Opening Hours</h3>
-        <p><strong>Monday - Friday</strong></p>
-        <p>Breakfast: 07:00 AM - 10:30 AM</p>
-        <p>Lunch: 11:00 AM - 02:00 PM</p>
-        <p>Dinner: 04:30 PM - 08:00 PM</p>
-        <p><strong>Saturday - Sunday</strong></p>
-        <p>Brunch: 09:30 AM - 02:00 PM</p>
-        <p>Dinner: 05:00 PM - 07:00 PM</p>
+                <h4 class="title">our infrastructures make</h4>
+                <h4 class="sub-title">your success seem easy</h4>
+                <div class="content-holder">
+                  <p></p>
+                </div>
+              </div>
+              <ul class="page-pagination">
+                <li>
+                  <a href="/"><i class="fa-solid fa-house"></i>Home</a>
+                </li>
+                /
+                <li><a href="javascript: void(0)">our infrastructures</a></li>
+              </ul>
+              <div class="img-holder">
+                <img
+                  src="https://heraldcollege.edu.np/images/banner/infrastructure__banner.jpg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <main class="infrastructure inner-page">
+        <div class="container">
+          <div class="infrastructure__container">
+            <div class="row">
+              <div class="col-12 col-lg-6">
+                <div class="infrastructure__imges">
+                  <div class="img-one">
+                    <img
+                      src="https://heraldcollege.edu.np/images/infrastructure/img-one.png"
+                      alt=""
+                    />
+                  </div>
+                  <div class="img-two">
+                    <img
+                      src="https://heraldcollege.edu.np/images/infrastructure/img-two.png"
+                      alt=""
+                    />
+                  </div>
+                  <div class="img-three">
+                    <img
+                      src="https://heraldcollege.edu.np/images/infrastructure/img-three.png"
+                      alt=""
+                    />
+                  </div>
+                  <div class="img-four">
+                    <img
+                      src="https://heraldcollege.edu.np/images/infrastructure/img-four.png"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="col-12 col-lg-6 d-flex align-items-center mt-5 mt-lg-0"
+              >
+                <div class="infrastructure__content">
+                  <h5>Our Structures</h5>
+                  <h6>
+                    Top Tier Infrastructure and facilities for our students
+                  </h6>
+                  <p>
+                    With spacious and tech-ridden lecture theatres, tutorial
+                    rooms and computer labs, our students now experience
+                    learning on a whole new level. And when you need to relax or
+                    study, we have our pristine cafe, lounges and learning zones
+                    to help you do exactly that.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="infrastructure__info">
+            <div class="item-one info-item">
+              <div class="number">5</div>
+              <div class="item-content">
+                <h5>Computer labs</h5>
+                <p>
+                  High-Performance Labs are equipped with the latest hardware
+                  and software to help our students compute the most complex
+                  tasks.
+                </p>
+              </div>
+            </div>
+            <div class="item-two">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-one.png"
+                alt=""
+              />
+            </div>
+            <div class="item-three">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-two.png"
+                alt=""
+              />
+            </div>
+            <div class="item-four">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-three.png"
+                alt=""
+              />
+            </div>
+            <div class="item-five info-item">
+              <div class="number">4</div>
+              <div class="item-content">
+                <h5>blocks</h5>
+                <p>
+                  Spread across the campus differentiated by their own unique
+                  names and facilities.
+                </p>
+              </div>
+            </div>
+            <div class="item-six info-item">
+              <div class="number">4</div>
+              <div class="item-content">
+                <h5>Student Lounge</h5>
+                <p>
+                  Envelop yourself in the study-friendly environment of our
+                  Student Lounge as you catch up your projects and reads.
+                </p>
+              </div>
+            </div>
+            <div class="item-seven">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-five.png"
+                alt=""
+              />
+            </div>
+            <div class="item-eight">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/block-one.jpg"
+                alt=""
+              />
+            </div>
+            <div class="item-nine">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-seven.png"
+                alt=""
+              />
+            </div>
+            <div class="item-ten info-item">
+              <div class="number">1</div>
+              <div class="item-content">
+                <h5>Cafe</h5>
+                <p>
+                  Enjoy your freshly brewed coffee at our pristine cafe and
+                  complete your daily task and catch up with your friends.
+                </p>
+              </div>
+            </div>
+            <div class="item-eleven">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-eight.png"
+                alt=""
+              />
+            </div>
+            <div class="item-twelve">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/cafe.jpg"
+                alt=""
+              />
+            </div>
+            <div class="item-thirteen">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/block-three.jpg"
+                alt=""
+              />
+            </div>
+            <div class="item-fourteen">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/item-nine.png"
+                alt=""
+              />
+            </div>
+            <div class="item-sixteen info-item">
+              <div class="number">1</div>
+              <div class="item-content">
+                <h5>IMBA Lounge</h5>
+                <p>
+                  Enjoy your freshly brewed coffee at our pristine cafe and
+                  complete your daily task and catch up with your friends.
+                </p>
+              </div>
+            </div>
+            <div class="item-seventeen">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/imba-one.png"
+                alt=""
+              />
+            </div>
+            <div class="item-eighteen">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/imba-two.png"
+                alt=""
+              />
+            </div>
+            <div class="item-nineteen">
+              <img
+                src="https://heraldcollege.edu.np/images/infrastructure/imba-three.png"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
-    <script>
-      function updateDateTime() {
-        const now = new Date();
-        const options = {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true
-        };
-        document.getElementById('current-date-time').textContent = now.toLocaleString('en-US', options);
-      }
+    <section class="cta text-center">
+      <div class="container">
+        <h4>
+          Are you ready to take <br />
+          the next step toward your future career?
+        </h4>
+        <div class="cta__group">
+          <a href="/contact-us" class="cta__btn"> VISIT </a>
+          <a href="/apply-now" class="cta__btn color-green">APPLY NOW</a>
+        </div>
+      </div>
+    </section>
 
-      // Update date and time every second
-      setInterval(updateDateTime, 1000);
-      updateDateTime(); // Initial call to set the date/time immediately
-    </script>
-  </body>
+    <footer>
+      <div class="container">
+        <div class="logo">
+          <a href="/"
+            ><img
+              src="https://heraldcollege.edu.np/images/footer/footer-logo.svg"
+              alt="Herald College Logo"
+          /></a>
+        </div>
+        <div class="footer-container">
+          <div class="brand">
+            <h2 class="name">
+              Naxal Bhagawati Marga, <br />
+              Kathmandu, Nepal
+            </h2>
+          </div>
+          <div class="site-links">
+            <ul>
+              <li><a href="/scholarship">Scholarship Opportunity</a></li>
+              <li><a href="/our-courses">Our Courses</a></li>
+              <li>
+                <a href="https://www.wlv.ac.uk/" target="_blank">
+                  University of Wolverhampton</a
+                >
+              </li>
+              <li>
+                <a href="https://inggroup.com.np/" target="_blank">About ING</a>
+              </li>
+
+              <li><a href="/#events">Latest Events</a></li>
+              <li>
+                <a href="/international-exposure">International Exposure</a>
+              </li>
+              <li><a href="/#community">Our Community</a></li>
+            </ul>
+          </div>
+          <div class="other">
+            <ul>
+              <li><a href="/notices">Notice</a></li>
+
+              <li><a href="/our-infrastructure">Our Infrastructure</a></li>
+            </ul>
+          </div>
+          <div class="contact">
+            <ul>
+              <li><a href="tel:+9779801022637">+977 9801022637</a></li>
+              <li><a href="tel:+977015970120">+977 01-5970120</a></li>
+              <li><a href="tel:+9779801000078">+977 9801000078</a></li>
+              <li>
+                <a href="mailto:info@purnima.unk" class="text-lowercase"
+                  >info@purnima.unk</a
+                >
+              </li>
+            </ul>
+            <a href="/contact-us" class="btn__enquire"> Contact us </a>
+            <div class="social-links">
+              <ul>
+                <li>
+                  <a href="https://www.facebook.com/purnima/" target="_blank"
+                    ><i class="fa-brands fa-facebook"></i
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.instagram.com/purnima.unk/"
+                    target="_blank"
+                    ><i class="fa-brands fa-instagram"></i
+                  ></a>
+                </li>
+
+                <li>
+                  <a href="viber://chat?number=9779801000078"
+                    ><i class="fa-brands fa-viber"></i
+                  ></a>
+                </li>
+                <li>
+                  <a href="https://wa.me/9779801000078" target="_blank"
+                    ><i class="fa-brands fa-whatsapp"></i
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.youtube.com/channel/UC9gQBM_P4xLTHWJx9GKUtwg"
+                    target="_blank"
+                    ><i class="fa-brands fa-youtube"></i
+                  ></a>
+                </li>
+                <li>
+                  <a href="https://www.tiktok.com/@purnima.unk" target="_blank"
+                    ><i class="fa-brands fa-tiktok"></i
+                  ></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lower-footer">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 text-center">
+              © 2025 UNK University, All Rights Reserved
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
 </html>

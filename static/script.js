@@ -42,12 +42,33 @@ document.addEventListener("DOMContentLoaded", function () {
   //   })
   //   .catch((error) => console.error("Error fetching busiest hour:", error));
 
-  // // Fetch quiet hours
-  // fetch("/get_quiet_hours")
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     document.getElementById("quiet-hours").innerText =
-  //       data.quiet_hours.join(", ");
-  //   })
-  //   .catch((error) => console.error("Error fetching quiet hours:", error));
+  document
+    .getElementById("check-quiet-hours")
+    .addEventListener("click", function () {
+      fetch("/get_quiet_hours")
+        .then((response) => response.json())
+        .then((data) => {
+          const list = document.getElementById("quiet-hours-list");
+          list.innerHTML = ""; // Clear previous results
+
+          if (data.quiet_hours && data.quiet_hours.length > 0) {
+            data.quiet_hours.forEach((hour) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                        ${hour.time} 
+                        `;
+              // <small>(Avg: ${hour.average_count} people,
+              // Based on ${hour.readings_used} readings)</small>
+              list.appendChild(li);
+            });
+          } else {
+            list.innerHTML = "<li>No quiet hours data available</li>";
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          document.getElementById("quiet-hours-list").innerHTML =
+            "<li>Error loading quiet hours</li>";
+        });
+    });
 });

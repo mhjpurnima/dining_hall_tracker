@@ -203,39 +203,50 @@ def get_peak_hour(day):
     if df is None:
         return jsonify({"error": "Failed to load data"}), 500
 
-    print(f"\n=== DEBUGGING GET_PEAK_HOUR FOR {day.upper()} ===")
-    
     try:
         day = day.upper()
-        print(f"1. Looking for day column: {day}")
-        
         day_columns = df.iloc[1, :]
-        print(f"2. Available days in data: {list(day_columns[2:])}")
-        
         day_column_index = day_columns[day_columns == day].index[0]
-        print(f"3. Found {day} at column index: {day_column_index}")
         
         time_counts = []
-        print("4. Scanning time slots:")
+        current_meal = "BREAKFAST"  # Default to morning
+        
         for row in range(2, df.shape[0]):
-            time_str = df.iloc[row, 1]
+            # Track meal period markers
+            meal_cell = df.iloc[row, 0]
+            if pd.notna(meal_cell):
+                current_meal = meal_cell.strip().upper()
+            
+            time_str = str(df.iloc[row, 1]).strip()
             count = df.iloc[row, day_column_index]
             
-            if pd.isna(count) or not str(count).isnumeric():
-                print(f"   - {time_str}: Invalid count '{count}' → Skipped")
+            if not time_str or pd.isna(count):
                 continue
-                
+
             try:
-                count_int = int(count)
-                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                # Determine AM/PM based on meal period
+                if current_meal == "BREAKFAST":
+                    meridiem = "AM"
+                else:  # LUNCH/DINNER
+                    meridiem = "PM"
+
+                # Convert to proper time format
+                time_obj = datetime.strptime(f"{time_str} {meridiem}", "%I:%M %p")
                 formatted_time = time_obj.strftime("%I:%M %p").lstrip('0')
+                
+                # Handle 12 PM/AM correctly
+                if formatted_time.startswith("12"):
+                    formatted_time = formatted_time.replace(" 0", " ", 1)
+                formatted_time = formatted_time.replace(" 0", " ", 1)
+
                 time_counts.append({
                     "time": formatted_time,
-                    "count": count_int
+                    "count": int(count),
+                    "meridiem": meridiem
                 })
-                print(f"   - {time_str} → {formatted_time}: Valid count {count_int}")
+
             except Exception as e:
-                print(f"   - {time_str}: Error processing → {str(e)}")
+                print(f"Skipping invalid time '{time_str}': {str(e)}")
                 continue
 
         print(f"\n5. Peak hour analysis for {day}:")
@@ -268,11 +279,96 @@ def get_peak_hour(day):
 def tracker():
     return render_template("tracker.html")
 
-# @app.route("/get_quiet_hours")
-# def get_quiet_hours():
-#     df = load_data()
-#     if df is None:
-#         return jsonify({"error": "Failed to load data"}), 500
+@app.route("/get_quiet_hours")
+def get_quiet_hours():
+    df = load_data()
+    if df is None:
+        return jsonify({"error": "Failed to load data"}), 500
+
+    try:
+        time_stats = {}
+        current_meal = "BREAKFAST"
+        
+        # First pass: Create time slot map with proper AM/PM
+        time_slot_map = {}
+        for row in range(2, df.shape[0]):
+            meal_cell = df.iloc[row, 0]
+            if pd.notna(meal_cell):
+                current_meal = meal_cell.strip().upper()
+            
+            time_str = str(df.iloc[row, 1]).strip()
+            if not time_str:
+                continue
+
+            meridiem = "AM" if current_meal == "BREAKFAST" else "PM"
+            
+            try:
+                time_obj = datetime.strptime(f"{time_str} {meridiem}", "%I:%M %p")
+                formatted_time = time_obj.strftime("%I:%M %p").lstrip('0').replace(" 0", " ", 1)
+                time_slot_map[row] = formatted_time
+            except:
+                continue
+
+        # Second pass: Analyze counts with zero filtering
+        for row, formatted_time in time_slot_map.items():
+            total = 0
+            count = 0
+            zero_entries = 0
+            
+            for col in range(2, df.shape[1]):
+                cell_value = df.iloc[row, col]
+                if pd.notna(cell_value) and str(cell_value).isnumeric():
+                    numeric_value = int(cell_value)
+                    if numeric_value == 0:
+                        zero_entries += 1
+                    else:
+                        total += numeric_value
+                        count += 1
+
+            # Only consider slots with meaningful activity
+            if count > 0:  # At least some non-zero readings
+                avg = total / count
+                if avg > 0:  # Exclude slots with zero average
+                    if formatted_time in time_stats:
+                        # Merge with existing data
+                        existing = time_stats[formatted_time]
+                        time_stats[formatted_time] = {
+                            "average": (existing["average"] * existing["count"] + total) / (existing["count"] + count),
+                            "count": existing["count"] + count,
+                            "zero_percentage": (zero_entries + existing.get("zero_entries", 0)) / 
+                                             (count + existing["count"] + zero_entries + existing.get("zero_entries", 0)) * 100
+                        }
+                    else:
+                        time_stats[formatted_time] = {
+                            "average": avg,
+                            "count": count,
+                            "zero_percentage": zero_entries / (count + zero_entries) * 100
+                        }
+
+        # Filter and sort results
+        valid_times = [{
+            "time": k,
+            "average": v["average"],
+            "readings": v["count"],
+            "zero_pct": round(v["zero_percentage"], 1)
+        } for k, v in time_stats.items() if v["average"] > 0]
+
+        sorted_times = sorted(valid_times, key=lambda x: x["average"])[:3]
+
+        return jsonify({
+            "quiet_hours": [
+                {
+                    "time": t["time"],
+                    "average_count": round(t["average"], 1),
+                    "readings_used": t["readings"],
+                    "zero_percentage": t["zero_pct"]
+                } for t in sorted_times
+            ]
+        })
+
+    except Exception as e:
+        print(f"Error calculating quiet hours: {str(e)}")
+        return jsonify({"error": "Failed to calculate quiet hours"}), 500
 
 if __name__ == "__main__":
     df = load_data()

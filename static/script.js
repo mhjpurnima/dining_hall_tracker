@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (data.quiet_hours && data.quiet_hours.length > 0) {
             data.quiet_hours.forEach((hour) => {
+              
               const li = document.createElement("li");
               li.innerHTML = `
                         ${hour.time} 

@@ -83,35 +83,62 @@
     </section>
 
     <section class="py-10">
-      <div class="container flex justify-between">
-        <div>pic1</div>
+      <div class="container grid grid-cols-3 gap-4 justify-between">
+        <div>
+          <img
+            class=""
+            src="{{ url_for('static', filename='images/beef1.jpg') }}"
+            alt="Dining Hall Logo"
+            style="aspect-ratio: 16/9"
+          />
+        </div>
 
-        <div>pic2</div>
+        <div>
+          <img
+            class=""
+            src="{{ url_for('static', filename='images/beef2.jpg') }}"
+            alt="Dining Hall Logo"
+            style="aspect-ratio: 16/9"
+          />
+        </div>
 
-        <div>pic3</div>
+        <div>
+          <img
+            class=""
+            src="{{ url_for('static', filename='images/beef3.jpg') }}"
+            alt="Dining Hall Logo"
+            style="aspect-ratio: 16/9"
+          />
+        </div>
       </div>
     </section>
 
-    <section class="py-10 grid grid-cols-2 gap-4 text-xl bg-white">
-      <div class="col-6 text-dark text-center mt-0 d-grid align-items-center">
-        <h3 class="text-gray-600 fs-1 font-bold">About Us</h3>
-        <p class="text-gray-600 fs-3">
-          Too Grazy helps you avoid the rush at UNK Dining by predicting crowd
-          levels throughout the day. Skip the line, dine on time!
-        </p>
-        <a href="/tracker">
-          <button
-            class="btn border-2 border-dark text-gray-600 mx-auto px-5 py-4 fs-4"
-            style="width: fit-content"
-          >
-            Get to Tracker
-          </button>
-        </a>
+    <section class="grid grid-cols-2 gap-4 text-xl bg-white">
+      <div class="text-dark text-center mt-0 grid items-center">
+        <div>
+          <h3 class="text-gray-600 fs-1 font-bold">About Us</h3>
+          <p class="text-gray-600 fs-3">
+            Too Grazy helps you avoid the rush at UNK Dining by predicting crowd
+            levels throughout the day. Skip the line, dine on time!
+          </p>
+          <a href="/tracker">
+            <button
+              class="btn border-2 border-gray-600 text-gray-600 mx-auto px-5 py-4 fs-4"
+              style="width: fit-content"
+            >
+              Get to Tracker
+            </button>
+          </a>
+        </div>
       </div>
 
       <div class="col-6 mt-0">
-        <h3>Dining Hall Hours</h3>
-        <p>The dining hall is open from 7:00 AM to 7:00 PM.</p>
+        <img
+          class=""
+          src="{{ url_for('static', filename='images/graze2.jpg') }}"
+          alt="Dining Hall Logo"
+          style="aspect-ratio: 16/9; object-fit: cover"
+        />
       </div>
     </section>
 

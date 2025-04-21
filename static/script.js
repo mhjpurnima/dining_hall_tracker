@@ -53,13 +53,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (data.quiet_hours && data.quiet_hours.length > 0) {
             data.quiet_hours.forEach((hour) => {
-              
               const li = document.createElement("li");
+              li.className =
+                "quiet-hour-item bg-white bg-opacity-10 p-4 rounded-lg mb-2 backdrop-blur-sm";
               li.innerHTML = `
-                        ${hour.time} 
-                        `;
-              // <small>(Avg: ${hour.average_count} people,
-              // Based on ${hour.readings_used} readings)</small>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <i class="fas fa-clock mr-2"></i>
+                    <span class="font-bold">${hour.time}</span>
+                  </div>
+                  <div class="text-sm">
+                    <span class="mr-4">
+                      <i class="fas fa-user-friends mr-1"></i>
+                      ${hour.average_count} avg
+                    </span>
+                    <span>
+                      <i class="fas fa-database mr-1"></i>
+                      ${hour.readings_used} readings
+                    </span>
+                  </div>
+                </div>
+              `;
               list.appendChild(li);
             });
           } else {

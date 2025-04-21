@@ -115,3 +115,32 @@ a {
 .nav-logo {
   width: 106px;
 }
+
+.quiet-hour-item {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quiet-hour-item:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateX(5px);
+}
+
+#quiet-hours-list {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 0;
+  list-style: none;
+}
+
+#quiet-hours-results {
+  background: linear-gradient(
+    145deg,
+    rgba(76, 81, 191, 0.2),
+    rgba(21, 24, 32, 0.2)
+  );
+  padding: 2rem;
+  border-radius: 15px;
+  margin: 2rem auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

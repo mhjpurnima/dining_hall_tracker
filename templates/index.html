@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UNK Dining Hall Crowd Tracker</title>
@@ -69,17 +69,26 @@
         margin: 5px 0;
       }
     </style> -->
-  </head>
-  <body>
+</head>
+<body>
     <header>
 
       <nav>
+        <div>
+         <img class="nav-logo" src="{{ url_for('static', filename='images/dlogo.png') }}" alt="Dining Hall Logo"  style="aspect-ratio: 16/9;">
+        </div>
         <ul class="nav-menu">
           <li>
-            <a href="/">Home</a>
+            <a href="/" class="active">Home</a>
           </li>
           <li>
             <a href="/tracker">Tracker</a>
+          </li>
+          <li>
+            <a href="/hours">Hours</a>
+          </li>
+          <li>
+            <a href="/more-info">More Info</a>
           </li>
         </ul>
       </nav>

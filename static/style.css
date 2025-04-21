@@ -1,3 +1,4 @@
+
 @charset "UTF-8";
 @font-face {
   font-family: WorkSans-Black;
@@ -15,7 +16,41 @@
  * Copyright 2011-2021 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+
+header {
+  background-color: var(--bg-primary);
+  box-shadow: 2px 4px 8px 2px rgba(0, 0, 0, 0.15);
+  left: 0;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 11;
+  nav{
+    .nav-logo {
+     width: 106px;
+   
+   }
+   ul {
+     li {
+       a {
+         font-size: 16px;
+         padding: 16px;
+         &:hover {
+           color: #f2ce7d;
+           border-bottom: 2px solid #f2ce7d;
+         }
+       }
+     }
+   }
+  }
+}
+
+.active {
+  color: #f2ce7d;
+  border-bottom: 2px solid #f2ce7d;
+}
 :root {
+  --bg-primary: #281c17;
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
   --bs-purple: #6f42c1;
@@ -79,7 +114,10 @@
 *,
 :after,
 :before {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  font-family: "lato", sans-serif;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -13133,15 +13171,7 @@ p {
   margin-bottom: 0;
 }
 
-header {
-  background-color: #3c3c3c;
-  box-shadow: 2px 4px 8px 2px rgba(0, 0, 0, 0.15);
-  left: 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 11;
-}
+
 
 header .container-lg {
   box-sizing: border-box;
@@ -13380,7 +13410,7 @@ header nav ul li a {
 }
 
 header nav ul li a:hover {
-  color: #74bf44;
+  color: #f2ce7d;
 }
 
 header nav .menu {
@@ -23602,7 +23632,7 @@ body p {
   display: flex;
   gap: 20px;
 
-  a{
+  a {
     text-decoration: none;
   }
 }

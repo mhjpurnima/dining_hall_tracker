@@ -38,7 +38,7 @@
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
   </head>
   <body>
-    <header>
+    <header class="container">
       <nav>
         <div>
           <img
@@ -97,39 +97,79 @@
       <!-- <p>Busiest Hour: <span id="busiest-hour">---</span></p> -->
       <!-- <p>Quieter Hours: <span id="quiet-hours">---</span></p> -->
 
-      <section class="py-10">
-        <div class="container mx-auto">
-          <div class="bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-center text-3xl font-bold text-gray-800 mb-4">
-              Canteen Opening Hours
+      <section class="py-12 bg-gradient-to-r from-orange-400 to-yellow-400">
+        <div class="container mx-auto px-4">
+          <div
+            class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8 transform transition hover:scale-105 duration-300"
+          >
+            <h3 class="text-center text-4xl font-bold text-gray-800 mb-8">
+              <i class="fas fa-clock text-orange-500 mr-3"></i>
+              Opening Hours
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <h4 class="text-xl font-semibold text-gray-700">
-                  Monday - Friday
+
+            <div class="flex flex-col md:flex-row justify-between gap-8">
+              <!-- Weekdays -->
+              <div
+                class="flex-1 text-center p-6 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl"
+              >
+                <h4
+                  class="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-300 pb-2"
+                >
+                  Weekdays
+                  <span class="block text-sm font-normal text-gray-600 mt-1"
+                    >Monday - Friday</span
+                  >
                 </h4>
-                <p class="text-gray-600">
-                  Breakfast: <span class="font-bold">07:00 AM - 10:30 AM</span>
-                </p>
-                <p class="text-gray-600">
-                  Lunch: <span class="font-bold">11:00 AM - 02:00 PM</span>
-                </p>
-                <p class="text-gray-600">
-                  Dinner: <span class="font-bold">04:30 PM - 08:00 PM</span>
-                </p>
+                <div class="space-y-3">
+                  <p class="text-gray-700">
+                    <i class="fas fa-sun text-yellow-500 mr-2"></i>
+                    Breakfast: <span class="font-bold">7:00 AM - 10:30 AM</span>
+                  </p>
+                  <p class="text-gray-700">
+                    <i class="fas fa-utensils text-orange-500 mr-2"></i>
+                    Lunch: <span class="font-bold">11:00 AM - 2:00 PM</span>
+                  </p>
+                  <p class="text-gray-700">
+                    <i class="fas fa-moon text-blue-500 mr-2"></i>
+                    Dinner: <span class="font-bold">4:30 PM - 8:00 PM</span>
+                  </p>
+                </div>
               </div>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <h4 class="text-xl font-semibold text-gray-700">
-                  Saturday - Sunday
+
+              <!-- Vertical Divider -->
+              <div
+                class="hidden md:block w-px bg-gradient-to-b from-transparent via-orange-300 to-transparent"
+              ></div>
+
+              <!-- Weekend -->
+              <div
+                class="flex-1 text-center p-6 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl"
+              >
+                <h4
+                  class="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-300 pb-2"
+                >
+                  Weekend
+                  <span class="block text-sm font-normal text-gray-600 mt-1"
+                    >Saturday - Sunday</span
+                  >
                 </h4>
-                <p class="text-gray-600">
-                  Brunch: <span class="font-bold">09:30 AM - 02:00 PM</span>
-                </p>
-                <p class="text-gray-600">
-                  Dinner: <span class="font-bold">05:00 PM - 07:00 PM</span>
-                </p>
+                <div class="space-y-3">
+                  <p class="text-gray-700">
+                    <i class="fas fa-bread-slice text-yellow-500 mr-2"></i>
+                    Brunch: <span class="font-bold">9:30 AM - 2:00 PM</span>
+                  </p>
+                  <p class="text-gray-700">
+                    <i class="fas fa-moon text-blue-500 mr-2"></i>
+                    Dinner: <span class="font-bold">5:00 PM - 7:00 PM</span>
+                  </p>
+                </div>
               </div>
             </div>
+
+            <p class="text-center mt-8 text-sm text-gray-600">
+              <i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>
+              Last entry 30 minutes before closing time
+            </p>
           </div>
         </div>
       </section>

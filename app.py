@@ -96,6 +96,10 @@ def train_model(df):
 def home():
     return render_template("index.html")
 
+@app.route("/hours")
+def hours():
+    return render_template("hours.html")
+
 @app.route("/get_status/<day>")
 def get_status(day):
     df = load_data()

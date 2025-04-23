@@ -96,9 +96,26 @@
       </div>
       <!-- <p>Busiest Hour: <span id="busiest-hour">---</span></p> -->
       <!-- <p>Quieter Hours: <span id="quiet-hours">---</span></p> -->
-
-      
     </div>
+    <footer class="py-10">
+      <div class="container grid grid-cols-3 justify-between items-center">
+        <div class="col-4">
+          <img
+            class="nav-logo"
+            src="{{ url_for('static', filename='images/dlogo.png') }}"
+            alt="Dining Hall Logo"
+            style="aspect-ratio: 16/9"
+          />
+        </div>
+        <div class="col-4 text-center">
+          <p>&copy; 2025. All Rights Reserved.</p>
+        </div>
+
+        <div class="col-4 text-right">
+          <i class="fa-brands fa-facebook-f"></i>
+        </div>
+      </div>
+    </footer>
 
     <script>
       function updateDateTime() {

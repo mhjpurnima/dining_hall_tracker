@@ -228,11 +228,13 @@ def get_peak_hour(day):
                 continue
 
             try:
-                # Determine AM/PM based on meal period
-                if current_meal == "BREAKFAST":
+                # Parse time to determine AM/PM based on actual hour
+                hour = int(time_str.split(':')[0])
+                # Convert to 24-hour format for accurate AM/PM determination
+                if current_meal == "BREAKFAST" and hour == 12:  # Handle midnight special case
                     meridiem = "AM"
-                else:  # LUNCH/DINNER
-                    meridiem = "PM"
+                else:
+                    meridiem = "AM" if hour < 12 else "PM"
 
                 # Convert to proper time format
                 time_obj = datetime.strptime(f"{time_str} {meridiem}", "%I:%M %p")
@@ -250,7 +252,7 @@ def get_peak_hour(day):
                 })
 
             except Exception as e:
-                print(f"Skipping invalid time '{time_str}': {str(e)}")
+                print(f"Time parsing error: {str(e)}")
                 continue
 
         print(f"\n5. Peak hour analysis for {day}:")

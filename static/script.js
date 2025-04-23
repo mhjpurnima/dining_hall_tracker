@@ -62,16 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="fas fa-clock mr-2"></i>
                     <span class="font-bold">${hour.time}</span>
                   </div>
-                  <div class="text-sm">
-                    <span class="mr-4">
-                      <i class="fas fa-user-friends mr-1"></i>
-                      ${hour.average_count} avg
-                    </span>
-                    <span>
-                      <i class="fas fa-database mr-1"></i>
-                      ${hour.readings_used} readings
-                    </span>
-                  </div>
                 </div>
               `;
               list.appendChild(li);

@@ -351,15 +351,37 @@ def get_quiet_hours():
                             "zero_percentage": zero_entries / (count + zero_entries) * 100
                         }
 
-        # Filter and sort results
-        valid_times = [{
-            "time": k,
-            "average": v["average"],
-            "readings": v["count"],
-            "zero_pct": round(v["zero_percentage"], 1)
-        } for k, v in time_stats.items() if v["average"] > 0]
+        # Get current time
+        now = datetime.now()
+        current_time = now.time()
+        
+        # Filter and sort results based on time proximity
+        valid_times = []
+        for k, v in time_stats.items():
+            if v["average"] > 0:
+                try:
+                    # Parse stored time string to time object
+                    slot_time = datetime.strptime(k, "%I:%M %p").time()
+                    
+                    # Calculate time difference in hours
+                    time_diff = abs((current_time.hour * 60 + current_time.minute) - 
+                                  (slot_time.hour * 60 + slot_time.minute)) / 60
+                    
+                    # Consider times within 1.5-2.5 hour window
+                    if 1.5 <= time_diff <= 2.5:
+                        valid_times.append({
+                            "time": k,
+                            "average": v["average"],
+                            "readings": v["count"],
+                            "zero_pct": round(v["zero_percentage"], 1),
+                            "time_diff": time_diff
+                        })
+                except Exception as e:
+                    print(f"Error processing time {k}: {e}")
 
-        sorted_times = sorted(valid_times, key=lambda x: x["average"])[:3]
+        # Sort by closest to 2 hours difference first, then by quietest
+        valid_times.sort(key=lambda x: (abs(x["time_diff"] - 2), x["average"]))
+        sorted_times = valid_times[:3]
 
         return jsonify({
             "quiet_hours": [
@@ -367,9 +389,11 @@ def get_quiet_hours():
                     "time": t["time"],
                     "average_count": round(t["average"], 1),
                     "readings_used": t["readings"],
-                    "zero_percentage": t["zero_pct"]
+                    "zero_percentage": t["zero_pct"],
+                    "hours_from_now": round(t["time_diff"], 1)
                 } for t in sorted_times
-            ]
+            ],
+            "current_time": now.strftime("%I:%M %p").lstrip('0')
         })
 
     except Exception as e:

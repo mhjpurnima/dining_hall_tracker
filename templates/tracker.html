@@ -74,25 +74,32 @@
         id="current-date-time"
       ></p>
 
-      <div class="flex justify-evenly items-center">
-        <button id="check-status">
-          How Busy is Dining Hall?<span class="text-gray-400">(Click me)</span>:
-        </button>
-        <p class="text-white text-center fs-3" id="status">---</p>
-      </div>
-      <div class="flex justify-evenly items-center">
-        <button id="check-peak-hour">
-          Peak Hour For Today<span class="text-gray-400">(Click me)</span>:
-        </button>
-        <p class="text-white text-center fs-3" id="peak-hour">---</p>
-      </div>
+      <div class="space-y-10 w-1/2 mx-auto">
+        <div class="flex justify-between items-center">
+          <button id="check-status" class="px-4 py-2 bg-gray-500 rounded-md">
+            How Busy is Dining Hall?:
+          </button>
+          <p class="text-white text-center fs-3" id="status">---</p>
+        </div>
+        <div class="flex justify-between items-center">
+          <button id="check-peak-hour" class="px-4 py-2 bg-gray-500 rounded-md">
+            Peak Hour For Today:
+          </button>
+          <p class="text-white text-center fs-3" id="peak-hour">---</p>
+        </div>
 
-      <button id="check-quiet-hours">
-        Suggest Quiet Hours<span class="text-gray-400">(Click me)</span>
-      </button>
-      <div id="quiet-hours-results">
-        <p class="text-white text-center fs-3">Recommended Quiet Times:</p>
-        <ul id="quiet-hours-list"></ul>
+        <div id="quiet-hours-results">
+          <button
+            id="check-quiet-hours"
+            class="px-4 py-2 bg-gray-500 rounded-md"
+          >
+            Suggest Quiet Hours:
+          </button>
+          <p class="text-white text-center fs-3">
+            Recommended Quiet Times (Until 2 hours from now):
+          </p>
+          <ul id="quiet-hours-list"></ul>
+        </div>
       </div>
       <!-- <p>Busiest Hour: <span id="busiest-hour">---</span></p> -->
       <!-- <p>Quieter Hours: <span id="quiet-hours">---</span></p> -->

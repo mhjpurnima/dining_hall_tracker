@@ -399,6 +399,67 @@ def get_quiet_hours():
     except Exception as e:
         print(f"Error calculating quiet hours: {str(e)}")
         return jsonify({"error": "Failed to calculate quiet hours"}), 500
+    
+@app.route("/get_historical_trends")
+def get_historical_trends():
+    df = load_data()
+    if df is None:
+        return jsonify({"error": "Failed to load data"}), 500
+
+    try:
+        time_stats = {}
+        current_meal = "BREAKFAST"
+        
+        # Create time slot map with proper AM/PM
+        time_slot_map = {}
+        for row in range(2, df.shape[0]):
+            meal_cell = df.iloc[row, 0]
+            if pd.notna(meal_cell):
+                current_meal = meal_cell.strip().upper()
+            
+            time_str = str(df.iloc[row, 1]).strip()
+            if not time_str:
+                continue
+
+            meridiem = "AM" if current_meal == "BREAKFAST" else "PM"
+            
+            try:
+                time_obj = datetime.strptime(f"{time_str} {meridiem}", "%I:%M %p")
+                formatted_time = time_obj.strftime("%I:%M %p").lstrip('0').replace(" 0", " ", 1)
+                time_slot_map[row] = formatted_time
+            except:
+                continue
+
+        # Analyze counts for all time slots
+        for row, formatted_time in time_slot_map.items():
+            total = 0
+            count = 0
+            
+            for col in range(2, df.shape[1]):
+                cell_value = df.iloc[row, col]
+                if pd.notna(cell_value) and str(cell_value).isnumeric():
+                    numeric_value = int(cell_value)
+                    total += numeric_value
+                    count += 1
+
+            if count > 0:
+                avg = total / count
+                time_stats[formatted_time] = avg
+
+        # Convert to sorted list
+        sorted_times = sorted(
+            time_stats.items(),
+            key=lambda x: datetime.strptime(x[0], "%I:%M %p").time()
+        )
+
+        return jsonify({
+            "labels": [t[0] for t in sorted_times],
+            "data": [round(t[1], 1) for t in sorted_times]
+        })
+
+    except Exception as e:
+        print(f"Error generating trends: {str(e)}")
+        return jsonify({"error": "Failed to load historical data"}), 500
 
 if __name__ == "__main__":
     df = load_data()

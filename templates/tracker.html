@@ -36,6 +36,7 @@
       referrerpolicy="no-referrer"
     ></script>
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <header class="container">
@@ -73,6 +74,13 @@
         class="datetime text-white text-center fs-3"
         id="current-date-time"
       ></p>
+
+      <div
+        class="chart-container my-10"
+        style="position: relative; height: 40vh"
+      >
+        <canvas id="visitorsChart"></canvas>
+      </div>
 
       <div class="space-y-10 w-1/2 mx-auto">
         <div class="flex justify-between items-center">
@@ -144,6 +152,71 @@
       // Update date and time every second
       setInterval(updateDateTime, 1000);
       updateDateTime(); // Initial call to set the date/time immediately
+    </script>
+
+    <!-- Historical Trends Chart -->
+    <script>
+      const ctx = document.getElementById("visitorsChart").getContext("2d");
+      let visitorsChart = null;
+
+      function loadTrendsChart() {
+        fetch("/get_historical_trends")
+          .then((response) => response.json())
+          .then((data) => {
+            if (visitorsChart) {
+              visitorsChart.destroy();
+            }
+
+            visitorsChart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: data.labels,
+                datasets: [
+                  {
+                    label: "Expected Visitors",
+                    data: data.data,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    tension: 0.1,
+                    fill: false,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    title: {
+                      display: true,
+                      text: "Number of Visitors",
+                      color: "#fff",
+                    },
+                    ticks: { color: "#fff" },
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: "Time of Day",
+                      color: "#fff",
+                    },
+                    ticks: { color: "#fff" },
+                  },
+                },
+                plugins: {
+                  legend: {
+                    labels: { color: "#fff" },
+                  },
+                },
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("Error loading trends:", error);
+          });
+      }
+
+      // Load chart when page loads
+      document.addEventListener("DOMContentLoaded", loadTrendsChart);
     </script>
   </body>
 </html>

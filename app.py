@@ -9,9 +9,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from datetime import datetime
 
-EMAIL_ADDRESS = 'maharjanpurnima880@gmail.com'
-EMAIL_PASSWORD = 'hrrtbowkcookrwic' 
-
 
 
 
@@ -28,22 +25,25 @@ def load_data():
         print("Error loading CSV file:", e)
         return None
 
-def mail_template(subject, body):
+def mail_template(user_email,message):
+    admin_email = 'maharjanpurnima880@gmail.com'
     msg = EmailMessage()
-    msg['Subject'] = subject
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = 'maharjanpurnima880@gmail.com'
-    msg.set_content(body)
+    msg['Subject'] = f'Feedback from {user_email}'
+    msg['From'] = admin_email
+    msg['To'] = admin_email
+    msg.set_content(message)
     
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.login(admin_email, 'hrrtbowkcookrwic')
         smtp.send_message(msg)
 @app.route("/send_email", methods=["POST"])
 def send_email():
-    subject = request.form.get("subject")
+    email = request.form.get("email")
     message = request.form.get("message")
-    mail_template(subject, message)
-    return jsonify({"success": True})
+    print(message)
+    mail_template(email, message)
+    print("Email sent successfully")
+    return render_template("index.html")
 
 # Prepare data for training
 def prepare_data(df):

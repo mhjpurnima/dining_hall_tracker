@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&display=swap");
 @font-face {
   font-family: WorkSans-Black;
   src: url(../fonts/WorkSans-Black.woff2) format("woff2");
@@ -9,6 +10,9 @@
   src: url(../fonts/WorkSans-SemiBold.woff2) format("woff2");
 }
 
+.font-frank {
+  font-family: "Frank Ruhl Libre", serif;
+}
 /*!
  * Bootstrap v5.1.3 (https://getbootstrap.com/)
  * Copyright 2011-2021 The Bootstrap Authors

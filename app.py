@@ -1,11 +1,20 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import pandas as pd
 import numpy as np
+import smtplib 
+from email.message import EmailMessage
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from datetime import datetime
+
+EMAIL_ADDRESS = 'maharjanpurnima880@gmail.com'
+EMAIL_PASSWORD = 'hrrtbowkcookrwic' 
+
+
+
+
 
 app = Flask(__name__)
 print("TEST",app.url_map)
@@ -18,6 +27,23 @@ def load_data():
     except Exception as e:
         print("Error loading CSV file:", e)
         return None
+
+def mail_template(subject, body):
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = 'maharjanpurnima880@gmail.com'
+    msg.set_content(body)
+    
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
+@app.route("/send_email", methods=["POST"])
+def send_email():
+    subject = request.form.get("subject")
+    message = request.form.get("message")
+    mail_template(subject, message)
+    return jsonify({"success": True})
 
 # Prepare data for training
 def prepare_data(df):
@@ -99,6 +125,9 @@ def home():
 @app.route("/hours")
 def hours():
     return render_template("hours.html")
+@app.route("/more-info")
+def more_info():
+    return render_template("more-info.html")
 
 @app.route("/get_status/<day>")
 def get_status(day):

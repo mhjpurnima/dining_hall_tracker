@@ -21,6 +21,7 @@
  */
 :root {
   --bg-primary: #281c17;
+  --bg-secondary: #ce9c30;
   --text-primary: #f2ce7d;
   --text-white: #fff;
 }
@@ -61,6 +62,11 @@ body {
   font-size: 12px !important;
   line-height: 1.2;
 }
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
 header,
 footer {
   background-color: var(--bg-primary);

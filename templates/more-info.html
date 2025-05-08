@@ -48,8 +48,8 @@
     />
   </head>
   <body>
-    <header class="container">
-      <nav>
+    <header>
+      <nav class="container">
         <div>
           <img
             class="nav-logo"
@@ -75,48 +75,79 @@
       </nav>
     </header>
 
-    <section class=" bg-black p-5">
-      <div class="container space-y-5">
-        <div class="text-center text-lg text-green-300">
-          <h2>🗒️ &nbsp;Want to check today's menu?</h2>
-        <p>Visit UNK Dining Instagram and see their story</p>
-        <a
-          href="https://www.instagram.com/unkdining/"
-          target="_blank"
-          class="underline"
+    <section class="bg-black p-5">
+      <div class="container grid grid-cols-2 gap-5">
+        <div
+          class="p-5 border-2 border-gray-900 rounded-lg text-center text-lg text-primary space-y-5"
         >
-          https://www.instagram.com/unkdining
-        </a>
-      </div>
+          <h2 class="text-3xl font-frank font-medium">
+            🗒️ &nbsp; Still don't know what is on today's menu?
+          </h2>
+          <p>Visit UNK Dining Instagram and see their story</p>
+          <a
+            href="https://www.instagram.com/unkdining/"
+            target="_blank"
+            class="underline"
+          >
+            https://www.instagram.com/unkdining
+          </a>
+          <img
+            src="{{ url_for('static', filename='images/unkinsta.png') }}"
+            alt=""
+          />
+        </div>
 
-      <div class="text-center text-lg text-green-300">
-        <h2>
-          💳 &nbsp;Wondering how many meal swipes or dining dollars you have
-          left?
-        </h2>
-        <p>Login to MyBlue and check your balance</p>
-        <a
-          href="https://get.cbord.com/unk/full/login.php"
-          target="_blank"
-          class="underline"
+        <div
+          class="p-5 border-2 border-gray-900 rounded-lg text-center text-lg text-primary overflow-hidden space-y-5"
         >
-          https://get.cbord.com/unk/full/login.php
-        </a>
+          <h2 class="text-3xl font-frank font-medium">
+            💳 &nbsp;Wondering how many meal swipes or dining dollars you have
+            left?
+          </h2>
+          <p>Login to MyBlue and check your balance</p>
+          <a
+            href="https://get.cbord.com/unk/full/login.php"
+            target="_blank"
+            class="underline"
+          >
+            https://get.cbord.com/unk/full/login.php
+          </a>
+          <img
+            class="h-full"
+            src="{{ url_for('static', filename='images/unkget.png') }}"
+            alt=""
+          />
+        </div>
       </div>
     </section>
 
     <section class="bg-white">
       <div class="text-center text-black container py-8 space-y-5">
-        <h2 class="text-2xl font-frank font-medium">FeedBack for us</h2>
+        <h2 class="text-3xl font-frank font-medium">Feedback for us</h2>
         <p class="font-frank">
-          Was the crowd level accurate? <br>
+          Was the crowd level accurate? <br />
           Let us know so we can keep improving!
         </p>
         <form action="/send_email" method="post" class="space-y-5">
-          <input type="text" name="email" value="" placeholder="Email" class="resize-none w-1/2 rounded-lg p-3 border-2 border-gray-200 ">
-          <textarea name="message" id="" cols="30" rows="3" class="resize-none w-1/2 rounded-lg p-3 border-2 border-gray-200 " placeholder="Message*"></textarea>
-          <br>
-          <button class="border-2 border-black bg-white text-black px-8 py-3 rounded-md">
+          <input
+            type="text"
+            name="email"
+            value=""
+            placeholder="Email"
+            class="resize-none w-1/2 rounded-lg p-3 border-2 border-gray-200"
+          />
+          <textarea
+            name="message"
+            id=""
+            cols="30"
+            rows="3"
+            class="resize-none w-1/2 rounded-lg p-3 border-2 border-gray-200"
+            placeholder="Message*"
+          ></textarea>
+          <br />
+          <button
+            class="border-2 border-black bg-white text-black px-8 py-3 rounded-md"
+          >
             Send
           </button>
         </form>

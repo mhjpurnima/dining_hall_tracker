@@ -31,7 +31,26 @@ def mail_template(user_email,message):
     msg['Subject'] = f'Feedback from {user_email}'
     msg['From'] = admin_email
     msg['To'] = admin_email
-    msg.set_content(message)
+    submission_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message_body = message
+    email_template = f"""
+<strong>Subject: [TooGrazy] New Feedback from {user_email}</strong>
+
+Hi Team,
+
+A new feedback entry has been submitted via the “Feedback page” form.
+
+─ Submission Details ──────────────────────────────────────
+Date & Time : {submission_timestamp}  (server time)
+Email       : {user_email}
+
+Message:
+-----------------------------------------------------------
+{message_body}
+-----------------------------------------------------------
+
+"""
+    msg.set_content(email_template)
     
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
         smtp.login(admin_email, 'hrrtbowkcookrwic')

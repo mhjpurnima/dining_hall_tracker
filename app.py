@@ -155,99 +155,82 @@ def get_status(day):
         return jsonify({"error": "Failed to load data"}), 500
     
     try:
-        # Get current time in Windows-compatible format
+        # Round current time to nearest 15 minutes
         now = datetime.now()
         rounded_minute = (now.minute // 15) * 15
         rounded_time = now.replace(minute=rounded_minute, second=0, microsecond=0)
         formatted_time = rounded_time.strftime("%#I:%M")  # Windows format
-        
+        current_hour = rounded_time.hour
+
+        # Determine meal period based on current hour
+        # Determine meal period based on current hour
+        if 6 <= current_hour < 11:
+            meal_period = "BREAKFAST"
+        elif 11 <= current_hour < 16:
+            meal_period = "LUNCH"
+        elif 16 <= current_hour < 23:  # Now includes 10:00 PM (22:00)
+            meal_period = "DINNER"
+        else:
+            meal_period = "LATE NIGHT"
+
         day = day.upper()
-        
-        # Debugging: Log the input parameters
-        print(f"\n=== Analyzing {day} at {formatted_time} ===")
+        print(f"\n=== Analyzing {day} at {rounded_time} ({meal_period}) ===")
 
-        # Find all columns for this day across all weeks
-        day_columns = df.iloc[1, :]
-        day_indices = day_columns[day_columns == day].index.tolist()
-        
-        # Debugging: Log the day columns found
-        print(f"Day columns found for {day}: {day_indices}")
-
-        if not day_indices:
-            return jsonify({"error": f"No historical data for {day}"}), 404
-
-        # Find matching time slot row
+        # Find matching meal period and time slot
+        meal_column = df.iloc[:, 0].fillna(method='ffill').str.strip().str.upper()
         time_column = df.iloc[:, 1].astype(str).str.strip().str.lower()
-        search_time = formatted_time.strip().lower()
-        time_row_index = df.index[time_column == search_time].tolist()
-
-        # Debugging: Log the time row index found
-        print(f"Time row index found for {formatted_time}: {time_row_index}")
-
-        if not time_row_index:
+        
+        # Find rows matching both meal period and formatted time
+        matched_rows = df[(meal_column == meal_period) & 
+                         (time_column == formatted_time.lower())]
+        
+        if matched_rows.empty:
             return jsonify({
-                "error": f"No data for {formatted_time} time slot",
-                "suggestion": "Nearest available time slots",
-                "available_times": df.iloc[2:, 1].dropna().unique().tolist()
+                "error": f"No data for {formatted_time} {meal_period}",
+                "suggestion": "Check nearby times",
+                "available_times": df[meal_column == meal_period].iloc[:, 1].dropna().unique().tolist()
             }), 404
 
-        time_row_index = time_row_index[0]
+        time_row_index = matched_rows.index[0]
 
-        # Collect historical counts from all weeks for this day+time
+        # Find all columns for the requested day
+        day_columns = df.iloc[1, :]
+        day_indices = day_columns[day_columns.str.upper() == day].index.tolist()
+
+        if not day_indices:
+            return jsonify({"error": f"No data for {day}"}), 404
+
+        # Collect historical counts from matching day columns and time row
         counts = []
         valid_dates = []
         for col in day_indices:
             count = df.iloc[time_row_index, col]
             date = df.iloc[0, col]
-            
             if pd.notna(count) and str(count).isnumeric():
                 counts.append(int(count))
                 valid_dates.append(date)
 
-        # Debugging: Log the counts collected
-        print(f"Counts collected for {day} at {formatted_time}: {counts}")
-        print(f"Valid dates for counts: {valid_dates}")
-
         if not counts:
             return jsonify({"error": "No historical data for this time slot"}), 404
 
-        # Calculate metrics
+        # Calculate metrics and determine status
         avg_count = sum(counts) / len(counts)
-        min_count = min(counts)
-        max_count = max(counts)
-
-        # Debugging: Log the final calculated metrics
-        print(f"Average count: {avg_count}, Min count: {min_count}, Max count: {max_count}")
-
-        # Determine status
-        if avg_count < 20:
-            status = "Slow"
-        elif 20 <= avg_count < 40:
-            status = "Moderate"
-        else:
-            status = "Busy"
+        status = "Slow" if avg_count < 20 else "Moderate" if avg_count < 40 else "Busy"
 
         return jsonify({
             "day": day,
-            "time": formatted_time,
+            "time": f"{formatted_time} {meal_period}",
             "status": status,
             "average_count": round(avg_count, 1),
             "historical_weeks": len(counts),
-            "min_count": min_count,
-            "max_count": max_count,
+            "min_count": min(counts),
+            "max_count": max(counts),
             "analysis_dates": valid_dates
         })
 
     except Exception as e:
-        error_time = datetime.now().strftime("%H:%M")
-        print(f"Error processing {day} at {error_time}:", str(e))
-        return jsonify({
-            "error": "Prediction failed",
-            "debug_info": {
-                "attempted_day": day,
-                "server_time": error_time
-            }
-        }), 500
+        print(f"Error: {str(e)}")
+        return jsonify({"error": "Processing failed"}), 500
 
 @app.route("/get_peak_hour/<day>")
 def get_peak_hour(day):
@@ -258,76 +241,78 @@ def get_peak_hour(day):
     try:
         day = day.upper()
         day_columns = df.iloc[1, :]
-        day_column_index = day_columns[day_columns == day].index[0]
+        day_indices = day_columns[day_columns == day].index.tolist()
         
-        time_counts = []
-        current_meal = "BREAKFAST"  # Default to morning
-        
+        if not day_indices:
+            return jsonify({"error": f"No data for {day}"}), 404
+
+        time_stats = []
+        current_meal = "BREAKFAST"
+
         for row in range(2, df.shape[0]):
-            # Track meal period markers
+            # Track meal period
             meal_cell = df.iloc[row, 0]
             if pd.notna(meal_cell):
                 current_meal = meal_cell.strip().upper()
             
             time_str = str(df.iloc[row, 1]).strip()
-            count = df.iloc[row, day_column_index]
-            
-            if not time_str or pd.isna(count):
+            if not time_str:
                 continue
 
+            # Collect counts from all matching day columns
+            counts = []
+            for col in day_indices:
+                val = df.iloc[row, col]
+                if pd.notna(val) and str(val).isnumeric():
+                    counts.append(int(val))
+
+            if not counts:
+                continue  # Skip slots with no data
+
+            avg_count = sum(counts) / len(counts)
+
+            # Determine AM/PM based on meal period
             try:
-                # Parse time to determine AM/PM based on actual hour
                 hour = int(time_str.split(':')[0])
-                # Convert to 24-hour format for accurate AM/PM determination
-                if current_meal == "BREAKFAST" and hour == 12:  # Handle midnight special case
+                if current_meal == "BREAKFAST":
                     meridiem = "AM"
-                else:
+                elif current_meal == "LUNCH":
                     meridiem = "AM" if hour < 12 else "PM"
+                elif current_meal == "DINNER":
+                    meridiem = "PM"
+                else:
+                    meridiem = "PM"  # Default
 
-                # Convert to proper time format
+                # Format time with correct AM/PM
                 time_obj = datetime.strptime(f"{time_str} {meridiem}", "%I:%M %p")
-                formatted_time = time_obj.strftime("%I:%M %p").lstrip('0')
-                
-                # Handle 12 PM/AM correctly
-                if formatted_time.startswith("12"):
-                    formatted_time = formatted_time.replace(" 0", " ", 1)
-                formatted_time = formatted_time.replace(" 0", " ", 1)
+                formatted_time = time_obj.strftime("%I:%M %p").lstrip('0').replace(" 0", " ", 1)
 
-                time_counts.append({
+                time_stats.append({
                     "time": formatted_time,
-                    "count": int(count),
-                    "meridiem": meridiem
+                    "count": avg_count
                 })
-
             except Exception as e:
-                print(f"Time parsing error: {str(e)}")
+                print(f"Time parse error: {str(e)}")
                 continue
 
-        print(f"\n5. Peak hour analysis for {day}:")
-        print(f"   - All valid time counts: {time_counts}")
-        
-        if not time_counts:
-            print("   - ERROR: No valid time slots found")
-            return jsonify({"error": "No data available for this day"}), 404
+        if not time_stats:
+            return jsonify({"error": "No time slots found"}), 404
 
-        max_count = max(tc['count'] for tc in time_counts)
-        print(f"   - Maximum count found: {max_count}")
-        
-        peak_times = [tc['time'] for tc in time_counts if tc['count'] == max_count]
-        print(f"   - Peak time(s) with max count: {peak_times}")
-        
+        # Find peak hour(s)
+        max_count = max(ts["count"] for ts in time_stats)
+        peak_times = [ts["time"] for ts in time_stats if ts["count"] == max_count]
+
         return jsonify({
             "day": day,
             "peak_hours": peak_times,
-            "peak_count": max_count,
-            "total_readings": len(time_counts)
+            "average_peak_count": round(max_count, 1),
+            "total_sampled_weeks": len(day_indices)
         })
 
     except Exception as e:
-        print(f"\n!!! ERROR PROCESSING {day}: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": "Invalid day or data format"}), 400
+        print(f"Error: {str(e)}")
+        return jsonify({"error": "Processing failed"}), 500
+
 
 @app.route("/tracker")
 def tracker():

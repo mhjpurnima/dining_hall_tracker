@@ -34,7 +34,7 @@ def mail_template(user_email,message):
     submission_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     message_body = message
     email_template = f"""
-<strong>Subject: [TooGrazy] New Feedback from {user_email}</strong>
+Subject: [TooGrazy] New Feedback from {user_email}
 
 Hi Team,
 
